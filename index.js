@@ -205,13 +205,14 @@ app.get('/get-gmail-data', async (req, res) => {
         };
         result.push(messageInfo);
       }
-      console.log("result", result);
+      // console.log("result", result);
       // res.send(result)
 
       const filteredEmails = filterEmailsByKeywords(result);
 
-      // console.log("filtered mails" , filteredEmails);
+      console.log("filtered mails" , filteredEmails);
       if (filteredEmails.length > 1) {
+        
         writeDate();
         res.status(200).send("Processed");
         // res.send(filterEmailsByKeywords)
