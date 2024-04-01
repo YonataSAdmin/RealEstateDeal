@@ -110,7 +110,6 @@ async function getDate() {
   return lastDate;
 }
 function getCurrentDate(){
-  const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
   const currentDate = new Date().toLocaleString('en-US', { timeZone: 'Africa/Abidjan' });
 const lastStoredDateTime = new Date(currentDate);
 const year = lastStoredDateTime.getFullYear();
@@ -125,7 +124,7 @@ const values = [[formattedLastDate]];
 return values;
 }
 async function writeDate(values) {
-  
+  const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
   const response = sheets.spreadsheets.values.update({
     spreadsheetId,
     range,
