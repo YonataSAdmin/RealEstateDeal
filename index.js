@@ -109,7 +109,7 @@ async function getDate() {
   console.log(lastDate);
   return lastDate;
 }
-async function writeDate() {
+function getCurrentDate(){
   const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
   const currentDate = new Date().toLocaleString('en-US', { timeZone: 'Africa/Abidjan' });
 const lastStoredDateTime = new Date(currentDate);
@@ -120,7 +120,12 @@ const hours = String(lastStoredDateTime.getHours()).padStart(2, '0');
 const minutes = String(lastStoredDateTime.getMinutes()).padStart(2, '0');
 const seconds = String(lastStoredDateTime.getSeconds()).padStart(2, '0');
 const formattedLastDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  const values = [[formattedLastDate]];
+const values = [[formattedLastDate]];
+
+return values;
+}
+async function writeDate(values) {
+  
   const response = sheets.spreadsheets.values.update({
     spreadsheetId,
     range,
@@ -140,17 +145,6 @@ app.get('/get-gmail-data', async (req, res) => {
 
     let startDateInSeconds = await getDate();
 
-    // if (lastStoredDateTime) {
-    //   console.log("inside lastStoredDate")
-    //   const [datePart, timePart] = lastStoredDateTime.split(' ');
-    //   const [hours, minutes, seconds] = timePart.split(':').map(Number);
-    //   // console.log(new Date().getTimezoneOffset() * 60000);
-    //   const secTimeZone = (new Date().getTimezoneOffset() * 60000) / 1000;
-    //   startDateInSeconds = Math.floor(new Date(lastStoredDateTime[0]).getTime() / 1000) + secTimeZone + (hours * 60 * 60) + (minutes * 60) + (seconds);
-    //   // console.log(startDateInSeconds);
-    // } else {
-    //   startDateInSeconds = null;
-    // }
     console.log("startdate", startDateInSeconds);
 
     let msgParam = {
@@ -166,13 +160,12 @@ app.get('/get-gmail-data', async (req, res) => {
         }
 
     const messages = await gmail.users.messages.list(msgParam);
+    const currentDate = getCurrentDate();
     const result = [];
     const messageList = messages.data.messages;
 
     if (!messageList) {
-
-
-      writeDate();
+      writeDate(currentDate);
       res.send("No new mails");
     }
     else {
@@ -213,7 +206,7 @@ app.get('/get-gmail-data', async (req, res) => {
       console.log("filtered mails" , filteredEmails);
       if (filteredEmails.length > 1) {
         
-        writeDate();
+        writeDate(currentDate);
         res.status(200).send("Processed");
         // res.send(filterEmailsByKeywords)
         getParsedEmail(filteredEmails).then((propertyData) => {
